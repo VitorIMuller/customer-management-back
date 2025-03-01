@@ -5,6 +5,8 @@ use App\Http\Requests\StoreCustomer;
 use App\Http\Requests\UpdateCustomer;
 use App\Http\Resources\CustomerResource;
 use App\Models\Customer;
+use App\Services\Customers\CreateCustomerService;
+use App\Services\Customers\UpdateCustomerService;
 use App\Services\Filters\CustomersFilter;
 use Illuminate\Http\Request;
 
@@ -27,7 +29,9 @@ class CustomersController extends Controller
     public function store(StoreCustomer $request)
     {
         $validated = $request->validated();
-        $customer  = Customer::create($validated);
+
+        $createService = new CreateCustomerService($validated);
+        $customer      = $createService->create();
 
         return response()->json([
             'message'  => 'Customer created successfully.',
@@ -49,8 +53,12 @@ class CustomersController extends Controller
      */
     public function update(UpdateCustomer $request, $id)
     {
+        $validated = $request->validated();
+
         $customer = Customer::findOrFail($id);
-        $customer->update($request->validated());
+
+        $updateService = new UpdateCustomerService($validated);
+        $customer      = $updateService->update();
 
         return response()->json([
             'message' => 'Customer updated successfully.',
