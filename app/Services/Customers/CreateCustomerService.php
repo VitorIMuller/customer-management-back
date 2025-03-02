@@ -1,23 +1,35 @@
 <?php
 namespace App\Services\Customers;
 
+use App\Jobs\SendWelcomeEmail;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Log;
 
 class CreateCustomerService
 {
 
     protected $data;
 
+    protected $customer;
+
     public function __construct($data)
     {
         $this->data = $data;
+
+        $this->customer = null;
     }
 
-    public function create()
+    public function create($webhookEvent = null)
     {
-        $customer = Customer::create($this->data);
+        if ($webhookEvent) {
+            $this->data = $this->normalizeData();
+        }
 
-        return $customer;
+        $this->customer = Customer::create($this->data);
+
+        $this->sendWelcomeEmail();
+
+        return $this->customer;
     }
 
     public function normalizeData()
@@ -31,5 +43,11 @@ class CreateCustomerService
             'url_photo'         => $this->data['photo'],
             'status'            => 'A',
         ];
+    }
+
+    public function sendWelcomeEmail()
+    {
+        Log::info('Opa');
+        SendWelcomeEmail::dispatch($this->customer)->delay(now()->addSecond(5));
     }
 }

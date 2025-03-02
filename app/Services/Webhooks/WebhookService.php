@@ -43,8 +43,7 @@ class WebhookService
     protected function createEvent()
     {
         $customerService = new CreateCustomerService($this->load['messages']['createdCustomer'][0]);
-        $data            = $customerService->normalizeData();
-        $customer        = Customer::create($data);
+        $customerService->create(true);
     }
 
     protected function updateEvent()
