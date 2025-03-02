@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\Customers\CustomersController;
+use App\Http\Controllers\Twilio\TwilioController;
 use App\Http\Controllers\Webhooks\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,4 +16,6 @@ Route::namespace('API')
         Route::prefix('webhooks')->group(function () {
             Route::post('/receive-event', [WebhookController::class, 'receiveEvent']);
         });
+
+        Route::post('/twilio/call/{customer_id}/{type?}', [TwilioController::class, 'startCall']);
     });
