@@ -1,7 +1,10 @@
 <?php
 namespace App\Services\Webhooks;
 
+use App\Models\Customer;
 use App\Models\WebhookEvent;
+use App\Services\Customers\CreateCustomerService;
+use App\Services\Customers\UpdateCustomerService;
 use Illuminate\Support\Facades\Log;
 
 class WebhookService
@@ -18,15 +21,15 @@ class WebhookService
 
     public function handleEvent()
     {
-        Log::info($this->load);
         $this->saveEvent();
 
-        switch ($this->load['messages']) {
-            case 'updatedCustomer':
-                $this->updatedEvent();
-                break;
-            default:
-                return 'Desculpe! Não estamos preparados para este evento :(';
+        Log::info($this->load['messages']);
+        if (isset($this->load['messages']['createdCustomer'])) {
+            $this->createEvent();
+        } else if (isset($this->load['messages']['updatedCustomer'])) {
+            $this->updateEvent();
+        } else {
+            return 'Desculpe! Não estamos preparados para este evento :(';
         }
     }
 
@@ -37,8 +40,26 @@ class WebhookService
         ]);
     }
 
-    private function updatedEvent()
+    protected function createEvent()
     {
+        $customerService = new CreateCustomerService($this->load['messages']['createdCustomer'][0]);
+        $data            = $customerService->normalizeData();
+        $customer        = Customer::create($data);
+    }
 
+    protected function updateEvent()
+    {
+        $eventData = $this->load['messages']['updatedCustomer'][0];
+
+        $customer = Customer::where('huggy_customer_id', $eventData['id'])->first();
+
+        if (! $customer) {
+            $customerService = new CreateCustomerService($eventData);
+            $data            = $customerService->normalizeData();
+            $customer        = Customer::create($data);
+        }
+
+        $updateCustomer = new UpdateCustomerService($eventData, $customer->id);
+        $updateCustomer->update(true);
     }
 }

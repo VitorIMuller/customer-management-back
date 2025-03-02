@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('huggy_customer_id');
+            $table->string('huggy_customer_id')->nullable();
             $table->string('name')->required();;
-            $table->string('email', 191)->unique();
-            $table->string('phone')->unique()->required();
-            $table->string('cellphone')->unique()->required();
+            $table->string('email', 191)->unique()->nullable();
+            $table->string('phone')->unique()->nullable();
+            $table->string('cellphone')->unique()->nullable();
             $table->string('url_photo')->nullable();
             $table->enum('status', ['A', 'I'])->default('A');
             $table->string('zipcode')->nullable();

@@ -8,15 +8,35 @@ class UpdateCustomerService
 
     protected $data;
 
-    public function __construct($data)
+    protected $customer_id;
+
+    public function __construct($data, $id)
     {
-        $this->data = $data;
+        $this->data        = $data;
+        $this->customer_id = $id;
     }
 
-    public function update()
+    public function update($webhookEvent = null)
     {
-        $customer = Customer::update($this->data);
+        if ($webhookEvent) {
+            $this->data = $this->normalizeData();
+        }
+
+        $customer = Customer::findOrFail($this->customer_id)->update($this->data);
 
         return $customer;
+    }
+
+    public function normalizeData()
+    {
+        return [
+            'huggy_customer_id' => $this->data['id'],
+            'name'              => $this->data['name'],
+            'email'             => $this->data['email'],
+            'phone'             => $this->data['phone'],
+            'cellphone'         => $this->data['mobile'],
+            'url_photo'         => $this->data['photo'],
+            'status'            => 'A',
+        ];
     }
 }

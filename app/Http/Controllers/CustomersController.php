@@ -57,7 +57,7 @@ class CustomersController extends Controller
 
         $customer = Customer::findOrFail($id);
 
-        $updateService = new UpdateCustomerService($validated);
+        $updateService = new UpdateCustomerService($validated, $id);
         $customer      = $updateService->update();
 
         return response()->json([
