@@ -23,8 +23,8 @@ class StoreCustomer extends FormRequest
         return [
             'name'         => 'required|string',
             'email'        => 'required|email|unique:customers,email',
-            'phone'        => 'required|string',
-            'cellphone'    => 'required|string',
+            'phone'        => 'required|string|unique:customers,phone',
+            'cellphone'    => 'required|string|unique:customers,cellphone',
             'status'       => 'required|in:A,I',
             'zipcode'      => 'nullable|string',
             'address'      => 'nullable|string',
